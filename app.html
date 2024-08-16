@@ -1,0 +1,229 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Black Screen Alarm Clock</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/howler/2.2.3/howler.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab);
+            background-size: 400% 400%;
+            animation: gradientBG 15s ease infinite;
+            overflow: hidden;
+        }
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        .container {
+            text-align: center;
+            background-color: rgba(255, 255, 255, 0.8);
+            padding: 2rem;
+            border-radius: 20px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.2);
+            transition: all 0.3s ease;
+            z-index: 1;
+        }
+        h1 {
+            color: #e73c7e;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+        }
+        #timeDisplay {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #23a6d5;
+            margin: 1rem 0;
+        }
+        #alarmTime {
+            font-size: 1.2rem;
+            padding: 0.5rem;
+            border: 2px solid #23d5ab;
+            border-radius: 5px;
+        }
+        button {
+            margin: 0.5rem;
+            padding: 0.7rem 1.5rem;
+            font-size: 1rem;
+            background-color: #23a6d5;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        button:hover {
+            background-color: #e73c7e;
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        #setAlarmButton:active {
+            animation: setAlarmAnimation 0.3s ease;
+        }
+        @keyframes setAlarmAnimation {
+            0% { transform: rotate(0deg); }
+            25% { transform: rotate(-5deg); }
+            75% { transform: rotate(5deg); }
+            100% { transform: rotate(0deg); }
+        }
+        #gameContainer {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: black;
+            z-index: 1000;
+        }
+        #catchMeButton {
+            position: absolute;
+            background-color: black;
+            color: #00a8ff;
+            border: 2px solid #00a8ff;
+            box-shadow: 0 0 10px #00a8ff, 0 0 20px #00a8ff, 0 0 30px #00a8ff;
+            animation: pulse 1s infinite;
+        }
+        @keyframes pulse {
+            0% { box-shadow: 0 0 10px #00a8ff, 0 0 20px #00a8ff, 0 0 30px #00a8ff; }
+            50% { box-shadow: 0 0 20px #00a8ff, 0 0 30px #00a8ff, 0 0 40px #00a8ff; }
+            100% { box-shadow: 0 0 10px #00a8ff, 0 0 20px #00a8ff, 0 0 30px #00a8ff; }
+        }
+        #celebration {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 9999;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Black Screen Alarm Clock</h1>
+        <div id="timeDisplay"></div>
+        <input type="time" id="alarmTime">
+        <button id="setAlarmButton" onclick="setAlarm()">Set Alarm</button>
+    </div>
+    <div id="gameContainer">
+        <button id="catchMeButton" onmouseover="moveButton()">Catch Me!</button>
+    </div>
+    <div id="celebration"></div>
+
+    <script>
+        let alarmSound, celebrationSound, buttonPressSound;
+        let alarmInterval;
+        let secretCode = '';
+        let secretCodeTimeout;
+
+        function initSounds() {
+            alarmSound = new Howl({
+                src: ['https://actions.google.com/sounds/v1/alarms/alarm_clock.ogg'],
+                loop: true
+            });
+            celebrationSound = new Howl({
+                src: ['https://actions.google.com/sounds/v1/cartoon/crazy_dinner_bell.ogg']
+            });
+            buttonPressSound = new Howl({
+                src: ['https://actions.google.com/sounds/v1/button/button_click.ogg']
+            });
+        }
+
+        initSounds();
+
+        function updateTime() {
+            const now = new Date();
+            document.getElementById('timeDisplay').textContent = now.toLocaleTimeString();
+        }
+
+        setInterval(updateTime, 1000);
+
+        function setAlarm() {
+            buttonPressSound.play(); // Play button press sound
+            const alarmTime = document.getElementById('alarmTime').value;
+            if (alarmTime) {
+                const [hours, minutes] = alarmTime.split(':');
+                const now = new Date();
+                const alarm = new Date();
+                alarm.setHours(hours);
+                alarm.setMinutes(minutes);
+                alarm.setSeconds(0);
+
+                if (alarm < now) {
+                    alarm.setDate(alarm.getDate() + 1);
+                }
+
+                const timeToAlarm = alarm - now;
+                setTimeout(triggerAlarm, timeToAlarm);
+                
+                alert(`Alarm set for ${alarmTime}`);
+            }
+        }
+
+        function triggerAlarm() {
+            alarmSound.play();
+            document.getElementById('gameContainer').style.display = 'flex';
+            document.getElementById('gameContainer').style.justifyContent = 'center';
+            document.getElementById('gameContainer').style.alignItems = 'center';
+            alarmInterval = setInterval(moveButton, 1000);
+            document.addEventListener('keypress', handleSecretCode);
+        }
+
+        function moveButton() {
+            const button = document.getElementById('catchMeButton');
+            const containerRect = document.getElementById('gameContainer').getBoundingClientRect();
+            const maxX = containerRect.width - button.offsetWidth;
+            const maxY = containerRect.height - button.offsetHeight;
+            const randomX = Math.floor(Math.random() * maxX);
+            const randomY = Math.floor(Math.random() * maxY);
+            button.style.left = `${randomX}px`;
+            button.style.top = `${randomY}px`;
+        }
+
+        function celebrate() {
+            celebrationSound.play();
+            confetti({
+                particleCount: 100,
+                spread: 70,
+                origin: { y: 0.6 }
+            });
+        }
+
+        function stopAlarm() {
+            if (alarmSound.playing()) {
+                alarmSound.stop();
+                clearInterval(alarmInterval);
+                document.getElementById('gameContainer').style.display = 'none';
+                document.removeEventListener('keypress', handleSecretCode);
+                celebrate();
+                setTimeout(() => alert('Alarm stopped! Good morning!'), 1000);
+            }
+        }
+
+        document.getElementById('catchMeButton').addEventListener('click', stopAlarm);
+
+        function handleSecretCode(event) {
+            secretCode += event.key;
+            clearTimeout(secretCodeTimeout);
+            secretCodeTimeout = setTimeout(() => {
+                secretCode = '';
+            }, 1000);
+
+            if (secretCode.endsWith('rr')) {
+                stopAlarm();
+            }
+        }
+    </script>
+</body>
+</html>
