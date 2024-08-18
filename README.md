@@ -11,20 +11,6 @@ This is a fun and functional alarm clock web application that not only wakes you
 - **Celebration Effect:** Once the alarm is successfully turned off, a fun confetti animation and celebration sound play.
 - **Secret Code:** For those who know the secret, typing `rr` will immediately stop the alarm.
 
-## Installation
-
-To run this project locally, follow these steps:
-
-1. Clone the repository:
-    ```bash
-    git clone https://github.com/your-username/functional-alarm-clock.git
-    ```
-2. Navigate to the project directory:
-    ```bash
-    cd functional-alarm-clock
-    ```
-3. Open the `index.html` file in your preferred web browser.
-
 ## How to Use
 
 1. Set the desired time for the alarm by selecting a time from the input field.
